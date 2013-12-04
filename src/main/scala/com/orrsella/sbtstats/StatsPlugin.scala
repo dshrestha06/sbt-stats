@@ -19,6 +19,9 @@ package com.orrsella.sbtstats
 import java.io.File
 import sbt._
 import sbt.Keys._
+import java.io.PrintWriter
+import java.io.FileWriter
+
 
 object StatsPlugin extends Plugin {
 
@@ -45,9 +48,9 @@ object StatsPlugin extends Plugin {
     aggregate in statsProjectNoPrint := false
   )
 
-  def statsCommand = Command.command("stats") { state => doCommand(state) }
+  def statsCommand = Command.args("stats", "<name>") { (state, args) => doCommand(state, args.mkString(" ")) }
 
-  private def doCommand(state: State): State = {
+  private def doCommand(state: State, project: String): State = {
     val log = state.log
     val extracted: Extracted = Project.extract(state)
     val structure = extracted.structure
@@ -63,17 +66,28 @@ object StatsPlugin extends Plugin {
     val distinctTitles = results.map(_.title).distinct
     val summedResults = distinctTitles.map(t => results.filter(r => r.title == t).reduceLeft(_ + _))
 
+    val outputFile = new File(System.getProperty("user.home") + "/sbt-stats-output/" + project)
+
     log.info("")
-    log.info("Code Statistics for project:")
+    log.info("Code Statistics for project:" + project)
     log.info("")
 
     summedResults.foreach(res => {
       log.info(res.toString)
       log.info("")
+      flush(outputFile, res.toString)
     })
 
     // return unchanged state
     state
+  }
+
+  def flush(file: File, text: String) {
+    val p = new PrintWriter(new FileWriter(file, true))
+
+    p.println(text)
+    p.flush
+    p.close
   }
 
   private def statsProjectTask(results: Seq[AnalyzerResult], name: String, log: Logger) {
