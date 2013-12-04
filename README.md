@@ -1,3 +1,20 @@
+To use custom sbt-stats :
+
+sbt package
+cp the generated .jar file into ~/.sbt/plugins/lib
+
+Then go to the project where you will use sbt and type:
+
+sbt
+
+Once you're in the sbt console, type:
+
+stats <project name>
+
+Example:
+
+stats scalaz
+
 # sbt-stats
 
 An [sbt](http://www.scala-sbt.org/) (Simple Build Tool) plugin that easily provides source code statistics and analytics in the sbt console. It's purpose is to provide a Bird's-eye View of your project in terms of raw numbers and percentages. Can provide statistics for an entire multi-project build, or on a per-project basis. See [this post](http://orrsella.com/post/41001293440/introducing-sbt-stats-an-sbt-plugin-for-source-code-stat) for some more background.
